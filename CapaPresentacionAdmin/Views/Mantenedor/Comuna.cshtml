@@ -1,0 +1,287 @@
+﻿
+@{
+    ViewBag.Title = "Comuna";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- CONTENIDO -->
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Comunas</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="index.html">Mantenimiento</a></li>
+        <li class="breadcrumb-item active">Comunas</li>
+    </ol>
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-users me-1"></i>
+            Lista Comunas
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12">
+                    <button type="button" class="btn btn-success" onclick="abrirModal(null)">Crear Comuna</button>
+                </div>
+            </div>
+            <hr />
+            <table id="tabla" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Activo</th>
+                        <th>Region</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="FormModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Comuna</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <input type="hidden" id="IDCOMUNA" value="0" />
+
+
+                <div class="mb-3">
+                    <label for="DESCRIPCION" form-label">Descripcion</label>
+                    <input type="text" class="form-control" id="DESCRIPCION" placeholder="Padre hurtado">
+                </div>
+
+                <div class="mb-3">
+                    <label for="ACTIVO" class="form-label">Activo</label>
+                    <select id="ACTIVO" class="form-select">
+                        <option value="1">Si</option>
+                        <option value="0">No</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label  form-label">REGION</label>
+                    <select class="form-select" id="IDREGION" placeholder="RM"> </select>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div id="MensajeError" class="alert alert-danger mt-2" role="alert">
+                            This is a danger alert—check it out!
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div id="MensajeSuccess" class="alert alert-success mt-2" role="alert">
+                            This is a danger alert—check it out!
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="Guardar()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- JS -->
+@section scripts {
+    <script>
+        var tabladata;
+        var filaSeleccionada;
+        var comunaSeleccionada;
+        tabladata = $("#tabla").DataTable({
+            responsive: true,
+            oridering: false,
+            "ajax": {
+                url: '@Url.Action("ListarComunas", "Mantenedor")',
+                type: "GET",
+                dataType: "json"
+            },
+            "columns": [
+                { "data": "DESCRIPCION" },
+                {
+                    "data": "ACTIVO", "render": function (valor) {
+
+                        if(valor) {
+                            return '<span class="badge bg-success">Si</span>';
+
+
+                        } else {
+                            return '<span class="badge bg-danger">No</span>';
+                        }
+                    }
+                },
+                { "data": "ID_REGION.DESCRIPCION" },
+                {
+                    "defaultContent":   '<button type="button" class="btn-editar btn btn-primary btn-sm"><i class="fas fa-pen me-1"></i></button>' +
+                        '<button type="button" class="btn-eliminar btn btn-danger btn-sm ms-2"><i class="fas fa-trash me-1"></i></button>',
+                    "orderable": false,
+                    "searchable": false,
+                    "width": "90px"
+                }
+            ],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json',
+            },
+        });
+
+        jQuery.ajax({
+            url: '@Url.Action("ListarRegiones", "Mantenedor")',
+            type: "GET",
+            data: null,
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                $("<option>").attr({ "value": "0", "disabled":"true"}).text("Seleccionar").appendTo("#IDREGION");
+                $.each(data.data, function (index, item) {
+                    $("<option>").attr({ "value": item.ID_REGION }).text(item.DESCRIPCION).appendTo("#IDREGION");
+                })
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+
+        function abrirModal(json) {
+            debugger;
+            $("#IDCOMUNA").val("");
+            $("#DESCRIPCION").val("");
+            $("#ACTIVO").val(1);
+            $("#IDREGION").val($("#IDREGION option:first").val());
+            $("#MensajeError").hide();
+            $("#MensajeSuccess").hide();
+            if (json != null) {
+                $("#IDCOMUNA").val(json.ID_COMUNA);
+                $("#DESCRIPCION").val(json.DESCRIPCION);
+                $("#ACTIVO").val(json.ACTIVO == true ? 1 : 0);
+                $("#IDREGION").val(json.ID_REGION.ID_REGION);
+            }
+            $("#FormModal").modal("show");
+        }
+        $("#tabla tbody").on("click", ".btn-editar", function () {
+            filaSeleccionada = $(this).closest("tr");
+            var data = tabladata.row(filaSeleccionada).data();
+            abrirModal(data);
+        })
+        $("#tabla tbody").on("click", ".btn-eliminar", function () {
+            comunaSeleccionada = $(this).closest("tr");
+            var data = tabladata.row(comunaSeleccionada).data();
+            var uwu = data.DESCRIPCION;
+            swal({
+                title: "Estas seguro?",
+                text: "Deseas eliminar la Comuna " + data.DESCRIPCION + " ?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+                .then((willDelete) => {
+                    if (willDelete) {
+                        jQuery.ajax({
+                            url: '@Url.Action("EliminarComuna", "Mantenedor")',
+                            type: "POST",
+                            dataType: "json",
+                            data: JSON.stringify({ id: data.ID_COMUNA }),
+                            contentType: "application/json; charset=utf-8",
+                            success: function (data) {
+                                tabladata.row(comunaSeleccionada).remove().draw()
+                                swal("Comuna " + uwu + " eliminada");
+                                uwu = "";
+                            },
+                            error: function (error) {
+                                console.log(error);
+                            }
+                        });
+                    } else {
+                        swal("Operacion cancelada! :)");
+                    }
+                });
+        });
+
+        function Guardar() {
+
+            var Comuna = {
+                ID_COMUNA: $("#IDCOMUNA").val(),
+                DESCRIPCION: $("#DESCRIPCION").val(),
+                ID_REGION: {
+                    ID_REGION: $("#IDREGION option:selected").val(),
+                    DESCRIPCION: $("#IDREGION option:selected").text(),
+                },
+                ACTIVO: $("#ACTIVO").val() == 1 ? true : false,
+            }
+            var formData = new FormData();
+            formData.append("comuna", JSON.stringify(Comuna));
+
+            jQuery.ajax({
+                url: '@Url.Action("GuardarComuna", "Mantenedor")',
+                type: "POST",
+                data: JSON.stringify({ objeto: Comuna }),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
+                    $(".modal-body").LoadingOverlay("hide");
+
+                    // USUARIO NUEVO
+                    if (Comuna.ID_COMUNA == 0) {
+                        debugger;
+                        console.log(data);
+                        if (data.resultado != 0) {
+                            Comuna.ID_COMUNA = data.resultado;
+                            tabladata.row.add(Comuna).draw(false);
+                            $("#MensajeSuccess").text("Perfecto");
+                            $("#MensajeSuccess").show();
+                            $("#FormModal").modal("hide");
+                            debugger;
+                        }
+                        else {
+                            console.log("error");
+
+                            $("#MensajeError").text(data.mensaje);
+                            $("#MensajeError").show();
+                        }
+                    }
+                    // USUARIO NUEVO
+                    else {
+                        if (data.resultado) {
+                            tabladata.row(filaSeleccionada).data(Comuna).draw(false);
+                            filaSeleccionada = null;
+                            $("#FormModal").modal("hide");
+                        }
+                        else {
+                            $("#MensajeError").text(data.mensaje);
+                            $("#MensajeError").show();
+
+                        }
+
+                    }
+
+                },
+                error: function (error) {
+                    (".modal-body").LoadingOverlay("hide");
+                    $("#MensajeError").text("Error Ajax");
+                    $("#MensajeError").show();
+                },
+                beforeSend: function () {
+                    $(".modal-body").LoadingOverlay("show", {
+                        imageRezizeFactor: 2,
+                        text: "Cargando..",
+                        size: 14
+                    })
+                },
+            });
+
+
+        }
+
+    </script>
+}
+
+
+

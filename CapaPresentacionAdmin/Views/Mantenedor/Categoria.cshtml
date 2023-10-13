@@ -1,0 +1,249 @@
+﻿
+@{
+    ViewBag.Title = "Categoria";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+ 
+<!-- CONTENIDO -->
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Categorias</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="index.html">Mantenimiento</a></li>
+        <li class="breadcrumb-item active">Categorias</li>
+    </ol>
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-users me-1"></i>
+            Lista Categorias
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12">
+                    <button type="button" class="btn btn-success" onclick="abrirModal(null)">Crear Categoria</button>
+                </div>
+            </div>
+            <hr />
+            <table id="tabla" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Activo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="FormModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Usuario</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <input type="hidden" id="IDCATEGORIA" value="0" />
+
+                 
+                <div class="mb-3">
+                    <label for="DESCRIPCION" form-label">Descripcion</label>
+                    <input type="text" class="form-control" id="DESCRIPCION" placeholder="Videojuegos">
+                </div>
+                @*<div class="mb-3">
+                        <label for="CONTRASEÑA" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="CONTRASEÑA" placeholder="Ingrese su contraseña">
+                    </div>*@
+                <div class="mb-3">
+                    <label for="ACTIVO" class="form-label">Activo</label>
+                    <select id="ACTIVO" class="form-select">
+                        <option value="1">Si</option>
+                        <option value="0">No</option>
+                    </select>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div id="MensajeError" class="alert alert-danger mt-2" role="alert">
+                            This is a danger alert—check it out!
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div id="MensajeSuccess" class="alert alert-success mt-2" role="alert">
+                            This is a danger alert—check it out!
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="Guardar()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- JS -->
+@section scripts {
+    <script>
+        var tabladata;
+        var filaSeleccionada;
+        var categoriaSeleccionada;
+        tabladata = $("#tabla").DataTable({
+            responsive: true,
+            oridering: false,
+            "ajax": {
+                url: '@Url.Action("ListarCategorias", "Mantenedor")',
+                type: "GET",
+                dataType:"json"
+            },
+            "columns": [
+                {"data":"DESCRIPCION"},
+                {
+                    "data": "ACTIVO", "render": function (valor) {
+                        if(valor) {
+                            return '<span class="badge bg-success">Si</span>';
+
+                        } else {
+                            return '<span class="badge bg-danger">No</span>';
+                        }
+                    }
+                },
+                {
+                    "defaultContent":   '<button type="button" class="btn-editar btn btn-primary btn-sm"><i class="fas fa-pen me-1"></i></button>' +
+                        '<button type="button" class="btn-eliminar btn btn-danger btn-sm ms-2"><i class="fas fa-trash me-1"></i></button>',
+                    "orderable": false,
+                    "searchable": false,
+                    "width": "90px"
+                }
+            ],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json',
+            },
+        });
+        function abrirModal(json) {
+            $("#IDCATEGORIA").val("");
+            $("#DESCRIPCION").val("");
+            $("#ACTIVO").val(1);
+            $("#MensajeError").hide();
+            $("#MensajeSuccess").hide();
+            debugger;
+            if (json != null) {
+                $("#IDCATEGORIA").val(json.ID_CATEGORIA);
+                $("#DESCRIPCION").val(json.DESCRIPCION);
+                $("#ACTIVO").val(json.ACTIVO == true ? 1 : 0);
+            }
+            console.log(json)
+            $("#FormModal").modal("show");
+        }
+        $("#tabla tbody").on("click", ".btn-editar", function () {
+            filaSeleccionada = $(this).closest("tr");
+            var data = tabladata.row(filaSeleccionada).data();
+            abrirModal(data);
+        })
+
+        $("#tabla tbody").on("click", ".btn-eliminar", function () {
+            categoriaSeleccionada = $(this).closest("tr");
+            var data = tabladata.row(categoriaSeleccionada).data();
+            var uwu = data.DESCRIPCION;
+            swal({
+                title: "Estas seguro?",
+                text: "Deseas eliminar la categoria " + data.DESCRIPCION + " ?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+                .then((willDelete) => {
+                    if (willDelete) {
+                        jQuery.ajax({
+                            url: '@Url.Action("EliminarCategoria", "Mantenedor")',
+                            type: "POST",
+                            dataType: "json",
+                            data: JSON.stringify({ id: data.ID_CATEGORIA }),
+                            contentType: "application/json; charset=utf-8",
+                            success: function (data) {
+                                tabladata.row(categoriaSeleccionada).remove().draw()
+                                swal("Categoria " + uwu + " eliminada");
+                                uwu = "";
+                            },
+                            error: function (error) {
+                                console.log(error);
+                            }
+                        });
+                    } else {
+                        swal("Operacion cancelada! :)");
+                    }
+                });
+        });
+
+        function Guardar() {
+
+            var Categoria = {
+                ID_CATEGORIA: $("#IDCATEGORIA").val(),
+                DESCRIPCION: $("#DESCRIPCION").val(),
+                ACTIVO: $("#ACTIVO").val() == 1 ? true : false
+            }
+            jQuery.ajax({
+                url: '@Url.Action("GuardarCategoria", "Mantenedor")',
+                type: "POST",
+                data: JSON.stringify({ objeto: Categoria}),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $(".modal-body").LoadingOverlay("hide");
+                    // USUARIO NUEVO
+                    if (Categoria.ID_CATEGORIA == 0) {
+                        if (data.resultado != 0) {
+                            Categoria.ID_CATEGORIA= data.resultado;
+                            tabladata.row.add(Categoria).draw(false);
+                            $("#MensajeSuccess").text("Perfecto");
+                            $("#MensajeSuccess").show();
+                            $("#FormModal").modal("hide");
+                        }
+                        else {
+                            $("#MensajeError").text(data.mensaje);
+                            $("#MensajeError").show();
+                        }
+                    }
+                    // USUARIO NUEVO
+                    else {
+                        if (data.resultado) {
+                            tabladata.row(filaSeleccionada).data(Categoria).draw(false);
+                            filaSeleccionada = null;
+                            $("#FormModal").modal("hide");
+                        }
+                        else {
+                            $("#MensajeError").text(data.mensaje);
+                            $("#MensajeError").show();
+
+                        }
+
+                    }
+
+                },
+                error: function (error) {
+                    (".modal-body").LoadingOverlay("hide");
+                    $("#MensajeError").text("Error Ajax");
+                    $("#MensajeError").show();
+                },
+                beforeSend: function () {
+                    $(".modal-body").LoadingOverlay("show", {
+                        imageRezizeFactor: 2,
+                        text: "Cargando..",
+                        size: 14
+                    })
+                },
+            });
+
+
+        }
+
+    </script>
+}
+
