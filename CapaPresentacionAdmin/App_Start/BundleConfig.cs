@@ -29,6 +29,7 @@ namespace CapaPresentacionAdmin
 						"~/Scripts/DataTables/dataTables.responsive.js",
 						"~/Scripts/jquery.validate.js",
 						"~/Scripts/jquery.validate.min.js",
+						"~/Scripts/jquery-ui.js",
 						"~/Scripts/scripts.js"));
  
 			
@@ -36,6 +37,7 @@ namespace CapaPresentacionAdmin
 							"~/Scripts/bootstrap.bundle.js"));
 
 			bundles.Add(new StyleBundle("~/Content/css").Include(
+				"~/Content/jquery-ui.css",
 				"~/Content/site.css",
 				"~/Content/DataTables/css/responsive.dataTables.css",
 				"~/Content/DataTables/css/jquery.dataTables.css"));

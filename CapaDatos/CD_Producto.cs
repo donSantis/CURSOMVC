@@ -24,7 +24,7 @@ namespace CapaDatos
 					sb.AppendLine("FROM COMUNA C");
 					sb.AppendLine("INNER JOIN REGION R ON C.ID_REGION = R.ID_REGION");
 					string query = "SELECT P.ID_PRODUCTO,P.NOMBRE,P.DESCRIPTION[DPRO],M.DESCRIPCION[DMAR],C.DESCRIPCION[DCAT],P.ID_MARCA,P.ID_CATEGORIA,P.PRECIO,P.STOCK,P.RUTA_IMAGEN,P.NOMBRE_IMAGEN,P.ACTIVO FROM PRODUCTO P INNER JOIN MARCA M ON P.ID_MARCA = M.ID_MARCA INNER JOIN CATEGORIA C ON P.ID_CATEGORIA = C.ID_CATEGORIA";
-
+					
 					SqlCommand cmd = new SqlCommand(query, conexion);
 					cmd.CommandType = CommandType.Text;
 					conexion.Open();
