@@ -12,7 +12,8 @@ using System.Web.Mvc;
 
 namespace CapaPresentacionAdmin.Controllers
 {
-    public class MantenedorController : Controller
+	[Authorize]
+	public class MantenedorController : Controller
     {
 		// GET: Mantenedor
 		public ActionResult Categoria()

@@ -19,7 +19,7 @@ namespace CapaNegocio
 		public int Registrar(Usuario obj, out string Mensaje)
 		{
 			Mensaje = string.Empty;
-			if(string.IsNullOrEmpty(obj.NOMBRES) || string.IsNullOrWhiteSpace(obj.NOMBRES))
+			if (string.IsNullOrEmpty(obj.NOMBRES) || string.IsNullOrWhiteSpace(obj.NOMBRES))
 			{
 				Mensaje = "El nombre no puede estar vacio";
 			}
@@ -31,8 +31,7 @@ namespace CapaNegocio
 			{
 				Mensaje = "El correo no puede estar vacio";
 			}
-
-			if(string.IsNullOrEmpty(Mensaje))
+			if (string.IsNullOrEmpty(Mensaje))
 			{
 				string contraseña = CN_Recursos.GenerarClave();
 				string asunto = "Creacion de nueva cuenta de usuario";
@@ -40,7 +39,7 @@ namespace CapaNegocio
 				mensaje_correo = mensaje_correo.Replace("!Clave!", contraseña);
 
 				bool respuesta = CN_Recursos.EviarCorreo(obj.CORREO, asunto, mensaje_correo);
-				if(respuesta)
+				if (respuesta)
 				{
 					obj.CONTRASEÑA = CN_Recursos.ConvertirSha256(contraseña);
 					return objCapaDato.Registrar(obj, out Mensaje);
@@ -85,9 +84,44 @@ namespace CapaNegocio
 			}
 		}
 		public bool Eliminar(int id, out string Mensaje)
-		{	
+		{
 			return objCapaDato.Eliminar(id, out Mensaje);
-			
+
 		}
+
+		public bool CambiarClave(int idusuario, string nuevaclave, out string Mensaje)
+		{
+			return objCapaDato.CambiarClave(idusuario, nuevaclave, out Mensaje);
+		}
+		public bool ReestablecerClave(int idusuario, string correo, out string Mensaje)
+		{
+			Mensaje = string.Empty;
+			string nuevaclave = CN_Recursos.GenerarClave();
+			bool resultado = objCapaDato.ReestablecerClave(idusuario, CN_Recursos.ConvertirSha256(nuevaclave), out Mensaje);
+			if (resultado)
+			{
+				string asunto = "Contraseña reestablecida";
+				string mensaje_correo = "<h3> Su cuenta fue reestablecida correctamente</h3></br><p>Su contraseña para acceder ahora es: !Clave!</p>";
+				mensaje_correo = mensaje_correo.Replace("!Clave!", nuevaclave);
+				bool respuesta = CN_Recursos.EviarCorreo(correo, asunto, mensaje_correo);
+
+				if (respuesta)
+				{
+					return true;
+				}
+				else
+				{
+					Mensaje = "No se pudo enviar el correo";
+					return false;
+				}
+
+			}else
+			{ 
+				Mensaje= "No se pudo reestablecer la cuenta";
+				return false;
+			}
+
+		}
+
 	}
 }
