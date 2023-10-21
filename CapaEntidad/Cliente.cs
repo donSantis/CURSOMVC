@@ -14,6 +14,7 @@ namespace CapaEntidad
 		public string  CORREO { get; set; }
 		public string  CONTRASEÑA { get; set; }
 		public bool REESTABLECER { get; set; }
+		public string CONFIRMAR_CLAVE { get; set; }
 		public bool ACTIVO { get; set; }
 
 	}
