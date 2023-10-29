@@ -25,5 +25,13 @@ namespace CapaNegocio
         {
             return objCapaDato.CantidadCarrito(idcliente);
         }
+        public bool EliminarCarrito(int idcliente, int idproducto)
+        {
+            return objCapaDato.EliminarCarrito(idcliente,idproducto);
+        }
+        public List<Carrito> ListarProductosCarrito(int idcliente)
+        {
+            return objCapaDato.ListarProductosCarrito(idcliente);
+        }
     }
 }

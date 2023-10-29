@@ -1,0 +1,105 @@
+﻿
+@{
+    ViewBag.Title = "Carrito";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-9 detalle-producto">
+
+                        </div>
+                        <div class="col-sm-3 detalle-envio">
+                            <div class="card">
+                                <div class="card-body bg-light">
+                                    <h5 class="card-title">Detalle Envio</h5>
+                                    <form>
+                                        <div class="mb-2">
+                                            <label for="cbregion" class="form-label">Region</label>
+                                            <select class="form-select form-select-sm" id="cbregion"></select>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label for="cbcomuna" class="form-label">Comuna</label>
+                                            <select class="form-select form-select-sm" id="cbcomuna"></select>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label for="txtnombre" class="form-label">Nombre Contacto</label>
+                                            <input type="text" class="form-control form-control-sm" id="txtnombre">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label for="txtdireccion" class="form-label">Direccion</label>
+                                            <input type="text" class="form-control form-control-sm" id="txtdireccion">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label for="txttelefono" class="form-label">Telefono</label>
+                                            <input type="text" class="form-control form-control-sm" id="txttelefono">
+                                        </div>
+                                        <div class="d-grid">
+                                            <button class="btn btn-primary"type="button"onclick="RealizarPago()">
+                                                <i class="fab fa-paypal"></i> Terminar y procesar pago
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script>
+
+    $(document).ready(function () {
+        ListarRegion();
+    })
+    function ListarRegion() {
+        $("<option>").attr({ "value": "00", "disabled": "disabled", "selected":"true" }).text("Seleccionar").appendTo("#cbregion");
+        jQuery.ajax({
+            url: '@Url.Action("ObtenerRegion","Tienda")',
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                if (data.lista != null) {
+                    $.each(data.lista, function (i, item) {
+                        $("<option>").attr({ "value": item.ID_REGION }).text(item.DESCRIPCION).appendTo("#cbregion");
+                    }),
+                        ListarComuna();
+                }
+            }
+        })
+    }
+
+    $("#cbregion").on("change", function () {
+         ListarComuna();
+     })
+
+    function ListarComuna() {
+        $("#cbcomuna").html("")
+        $("<option>").attr({ "value": "00", "disabled": "disabled", "selected": "true" }).text("Seleccionar").appendTo("#cbcomuna")
+        jQuery.ajax({
+            url: '@Url.Action("ObtenerComuna", "Tienda")',
+            type: "POST",
+            data: JSON.stringify({ID_COMUNA: $("#cbregion option:selected").val() }),
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                debugger
+                if (data.lista != null) {
+
+                    $.each(data.lista, function (i, item) {
+                        $("<option>").attr({ "value": item.ID_COMUNA }).text(item.DESCRIPCION).appendTo("#cbcomuna");
+                    })
+                }
+            }
+        })
+    }
+    </script>    
+}

@@ -30,15 +30,12 @@ namespace CapaDatos
 								new Region()
 								{
 									ID_REGION = Convert.ToInt32(dr["ID_REGION"]),
-									DESCRIPCION = dr["DESCRIPCION"].ToString(),
+                                    DESCRIPCION = dr["DESCRIPCION"].ToString(),
 									ACTIVO = Convert.ToBoolean(dr["ACTIVO"]),
 								});
 						}
 
 					}
-				}
-				{
-
 				}
 			}
 			catch
@@ -47,9 +44,6 @@ namespace CapaDatos
 			}
 			return lista;
 		}
-
-
-
 		public int Registrar(Region obj, out string Mensaje)
 		{
 			int idAutogenerado = 0;
@@ -78,9 +72,7 @@ namespace CapaDatos
 				Mensaje = ex.Message;
 			}
 			return idAutogenerado;
-
 		}
-
 		public bool Editar(Region obj, out string Mensaje)
 		{
 			bool resultado = false;

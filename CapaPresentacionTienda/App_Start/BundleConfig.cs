@@ -23,7 +23,7 @@ namespace CapaPresentacionAdmin
 					  "~/Scripts/bootstrap.bundle.js",
 					  "~/Scripts/fontawesome/all.min.js",
 					  "~/Scripts/loadingoverlay.min.js",
-					  "~/Scripts/sweetalert.js"));
+					  "~/Scripts/sweetalert.min.js"));
 
 			bundles.Add(new StyleBundle("~/Content/css").Include(
 				"~/Content/sweetalert.css",

@@ -36,9 +36,8 @@ namespace CapaDatos
 								new Comuna()
 								{
 									ID_COMUNA = Convert.ToInt32(dr["ID_COMUNA"]),
-									DESCRIPCION = dr["DESCRIPCION"].ToString(),
+                                    DESCRIPCION = dr["DESCRIPCION"].ToString(),
 									ID_REGION = new Region { 
-										ID_REGION = Convert.ToInt32(dr["ID_REGION"]), 
 										DESCRIPCION = dr["uwu"].ToString() 
 									},
 									ACTIVO = Convert.ToBoolean(dr["ACTIVO"]),

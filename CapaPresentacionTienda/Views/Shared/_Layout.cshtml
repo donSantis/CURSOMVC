@@ -36,7 +36,7 @@
                     {
                         <a class="btn btn-outline-dark" href="@Url.Action("Carrito","Tienda")">
                             <i class="fas fa-shopping-cart me-1"></i>
-                            <span class="badge bg-dark text-white ms-1 rounded-pill" id="cantidadcarrito">0</span>
+                            <span class="badge bg-dark text-white ms-1 rounded-pill cantidadcarrito" id="cantidadcarrito">0</span>
                         </a>
 
                         <ul class="navbar-nav ms-auto me-0 me-md-3 my-2 my-md-0">
@@ -63,10 +63,18 @@
     @RenderSection("scripts", required: false)
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script>
+
+        $(document).ready(function () {
+            MostrarCantidadCarrito();
+        })
+
+        
+
+
         function MostrarCantidadCarrito() {
             if ($("#cantidadcarrito").length > 0) {
                 jQuery.ajax({
-                    url: '@Url.Action("CantidadEnCarrito","Tienda")',
+                    url: '@Url.Action("CantidadCarrito", "Tienda")',
                     type: "GET",
                     dataType: "json",
                     contentType: "application/json; charset=utf-8",
@@ -79,17 +87,33 @@
 
         $(document).on("click", "button.agregarcarrito", function () {
             console.log($(this).data("idproducto"))
-             jQuery.ajax({
-                 url: '@Url.Action("AgregarCarrito","Tienda")',
-                 type: "POST",
-                 data: JSON.stringify({idproducto: $(this).idproducto}),
-                 dataType: "json",
-                 contentType: "application/json; charset=utf-8",
-                 success: function (data) {
-                     $("#cantidadcarrito").text(data.cantidad)
-                 }
-             })
-        })
+            jQuery.ajax({
+                url: '@Url.Action("AgregarCarrito","Tienda")',
+                type: "POST",
+                data: JSON.stringify({ idproducto: $(this).data("idproducto") }),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data.respuesta) {
+                        MostrarCantidadCarrito();
+                        swal({
+                            title: "Agregado al carrito",
+                            text: "Desea ir al carrito?",
+                            type: "success",
+                            showCancelButton: true,
+                            confrimButtonClass: "btn-primary",
+                            confrimButtonText: "Si",
+                            cancelButtonText: "No",
+                            closeOnConfirm: true,
+                        }, function () {
+                            window.location.href = '@Url.Action("Carrito","Tienda")'
+                        })
+                    } else {
+                        swal("", data.mensaje, "warning")
+                    }
+                }
+            });
+        });
     </script>
 </body>
 </html>
