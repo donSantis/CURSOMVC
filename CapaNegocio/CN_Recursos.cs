@@ -54,14 +54,14 @@ namespace CapaNegocio
 				smtp.Send(mail);
 				resultado = true;
 			}
-			catch (Exception ex)
+			catch
 			{
 				resultado = false;
 			}
 			return resultado;
 		}
 
-		public static string ConvertirBase64(string ruta, out Boolean conversion)
+		public static string ConvertirBase64(string ruta, out bool conversion)
 		{
 			string textoBase64 = string.Empty;
 			conversion = true;
@@ -70,7 +70,7 @@ namespace CapaNegocio
 				byte[] bytes = File.ReadAllBytes(ruta);
 				textoBase64 = Convert.ToBase64String(bytes);
 			}
-			catch (Exception ex)
+			catch
 			{
 				conversion = false;
 			}

@@ -19,7 +19,7 @@ namespace CapaEntidad
 		public string RUTA_IMAGEN { get; set; }
 		public string NOMBRE_IMAGEN { get; set; }
 		public bool ACTIVO { get; set; }
-		public decimal BASE64 { get; set; }
-		public string EXTENSION { get;}
+		public string BASE64 { get; set; }
+		public string EXTENSION { get; set; }
 	}
 }

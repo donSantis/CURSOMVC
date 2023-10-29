@@ -60,9 +60,6 @@ namespace CapaDatos
 
 					}
 				}
-				{
-
-				}
 			}
 			catch
 			{

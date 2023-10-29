@@ -164,14 +164,9 @@ namespace CapaDatos
 								{
 									ID_MARCA = Convert.ToInt32(dr["ID_MARCA"]),
 									DESCRIPCION = dr["DESCRIPCION"].ToString(),
-									ACTIVO = Convert.ToBoolean(dr["ACTIVO"]),
 								});
 						}
-
 					}
-				}
-				{
-
 				}
 			}
 			catch

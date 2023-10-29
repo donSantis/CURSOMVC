@@ -1,0 +1,38 @@
+﻿@model CapaEntidad.Producto
+@{
+    ViewBag.Title = "DetalleProducto";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>DetalleProducto</h2>
+
+<section class="py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="row gx-4 gx-lg-5 align-items-center">
+            <div class="col-md-6"><img class="card-img-top mb-5 mb-md-0" src="data:image/@Html.DisplayTextFor(m => m.EXTENSION);base64,@Html.DisplayTextFor(m=>m.BASE64)" alt="..." /></div>
+            <div class="col-md-6">
+                <div class="small mb-1">SKU:/ BST-@Html.DisplayTextFor(m => m.ID_PRODUCTO)</div>
+                <h1 class="display-5 fw-bolder">@Html.DisplayTextFor(m => m.NOMBRE)</h1>
+                <div class="fs-5 mb-5">
+                    <span class="text-decoration-line-through">$1.000.000</span>
+                    <span>$@Html.DisplayTextFor(m => m.PRECIO)</span>
+                </div>
+                <p class="lead">@Html.DisplayTextFor(m => m.DESCRIPTION)</p>
+                <div class="d-flex">
+                    <a href="@Url.Action("Index","Tienda")" class="btn btn-danger w-50 text-center me-3">
+                        <i class="fa fa-undo-alt"></i> Volver
+                    </a>
+                    @if (Session["Cliente"] != null)
+                    {
+                        <button class="btn btn-outline-dark agregarcarrito flex-shrink-0" type="button" data-idproducto="@Html.DisplayTextFor(m =>m.ID_PRODUCTO)">
+                            <i class="fas fa-cart-plus me-1"></i>
+                            Agregar al carro
+                        </button>
+                    }
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
