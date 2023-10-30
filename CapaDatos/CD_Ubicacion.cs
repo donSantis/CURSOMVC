@@ -54,7 +54,7 @@ namespace CapaDatos
                     string query = "SELECT * FROM COMUNA WHERE ID_REGION = @ID_REGION";
 
                     SqlCommand cmd = new SqlCommand(query, conexion);
-                    cmd.Parameters.AddWithValue("CONTRASEÑA", idregion);
+                    cmd.Parameters.AddWithValue("ID_REGION", idregion);
                     cmd.CommandType = CommandType.Text;
                     conexion.Open();
                     using (SqlDataReader dr = cmd.ExecuteReader())

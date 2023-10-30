@@ -113,8 +113,10 @@ namespace CapaPresentacionTienda.Controllers
                     ID_MARCA = oc.ID_PRODUCTO.ID_MARCA,
                     PRECIO = oc.ID_PRODUCTO.PRECIO,
                     RUTA_IMAGEN = oc.ID_PRODUCTO.RUTA_IMAGEN,
-                    NOMBRE_IMAGEN = CN_Recursos.ConvertirBase64(Path.Combine(oc.ID_PRODUCTO.RUTA_IMAGEN, oc.ID_PRODUCTO.NOMBRE_IMAGEN), out conversion),
-                    EXTENSION = Path.GetExtension(oc.ID_PRODUCTO.NOMBRE_IMAGEN)
+                    BASE64 = CN_Recursos.ConvertirBase64(Path.Combine(oc.ID_PRODUCTO.RUTA_IMAGEN, oc.ID_PRODUCTO.NOMBRE_IMAGEN), out conversion),
+                    EXTENSION = Path.GetExtension(oc.ID_PRODUCTO.NOMBRE_IMAGEN),
+                    NOMBRE_IMAGEN = oc.ID_PRODUCTO.NOMBRE_IMAGEN
+
                 },
                 CANTIDAD = oc.CANTIDAD
             }).ToList();
@@ -138,6 +140,7 @@ namespace CapaPresentacionTienda.Controllers
             respuesta = new CN_Carrito().EliminarCarrito(idcliente, idproducto);
             return Json(new { respuesta = respuesta, mensaje = mensaje, }, JsonRequestBehavior.AllowGet);
         }
+
         [HttpPost]
         public JsonResult ObtenerRegion()
         {
@@ -146,10 +149,10 @@ namespace CapaPresentacionTienda.Controllers
             return Json(new { lista = lista }, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
-        public JsonResult ObtenerComuna(int idregion)
+        public JsonResult ObtenerComuna(int idcomuna)
         {
             List<Comuna> lista = new List<Comuna>();
-            lista = new CN_Ubicacion().ObtenerComuna(idregion);
+            lista = new CN_Ubicacion().ObtenerComuna(idcomuna);
             return Json(new { lista = lista }, JsonRequestBehavior.AllowGet);
         }
         public ActionResult Carrito()
