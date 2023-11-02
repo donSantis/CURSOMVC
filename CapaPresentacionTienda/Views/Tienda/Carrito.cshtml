@@ -288,13 +288,63 @@
                             MostrarCantidadCarrito();
                             sumarTotal();
                         } else {
-                            swal("",data.mensaje,"warning")
+                            swal("", data.mensaje, "warning")
+
                         }
-                    } 
+                    }
                 })
-            
+
         })
 
+        function RealizarPago() {
+            if (parseInt($("#cantidadcarrito").text()) == 0) {
+                swal("", "No existe productos en el carrito", "warning");
+                return
+            }
+            if ($("#cbcomuna").val() == null || $("#txtnombre").val() == "" || $("#txtdireccion").val() == "" || $("#txttelefono").val() == "")
+            {
+                swal("", "Se debe completar los datos del detalle de envio", "warning");
+                return
+            }
+            var _venta = {
+                TOTAL_PRODUCTO: $("input.input-cantidad").length,
+                MONTO_TOTAL: 0,
+                CONTACTO: $("#txtnombre").val(),
+                ID_COMUNA: $("#cbcomuna").val(),
+                TELEFONO: $("#txttelefono").val(),
+                DIRECCION: $("#txtdireccion").val(),
+            }
+            var _lista_carrito = [];
+            $("input.input-cantidad").each(function (i) {
+                var producto = $(this).data("ID_PRODUCTO");
+                var cantidad = parseFloat($(this).val());
+                _lista_carrito.push({
+                    ID_PRODUCTO: producto,
+                    CANTIDAD: cantidad,
+                })
+            })
+            jQuery.ajax({
+                url: '@Url.Action("ProcesarPago", "Tienda")',
+                type: "POST",
+                data: JSON.stringify({ lista_carrito: _lista_carrito, venta : _venta}),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $.LoadingOverlay("hide")
+                    if (data.Status) {
+                        window.location.href = data.Link;
+                    } else {
+                        swal("","Intentalo más tarde","warning")
+                    }
+                },
+                beforeSend: function (  ) {
+                    $.LoadingOverlay("show")
+                },
+                error: function (error) {
+                    $.LoadingOverlay("hide")
+                }
+            })
+        }
 
     </script>    
 }
