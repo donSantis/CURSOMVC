@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Services.Description;
+using CapaEntidad.Paypal;
 
 namespace CapaPresentacionTienda.Controllers
 {
@@ -165,17 +166,26 @@ namespace CapaPresentacionTienda.Controllers
         [HttpPost]
         public async Task<JsonResult> ProcesarPago(List<Carrito> lista_carrito, Venta venta)
         {
+
             decimal total = 0;
             DataTable detalle_venta = new DataTable();
             detalle_venta.Locale = new CultureInfo("es-PE");
             detalle_venta.Columns.Add("IDPRODUCTO",typeof(string));
             detalle_venta.Columns.Add("CANTIDAD",typeof(int));
             detalle_venta.Columns.Add("TOTAL",typeof(decimal));
-            
+            List<Item> listaItem = new List<Item>();    
             foreach (Carrito carrito in lista_carrito)
             {
                 decimal subtotal = Convert.ToDecimal(carrito.CANTIDAD.ToString()) * carrito.ID_PRODUCTO.PRECIO;
                 total += subtotal;
+                listaItem.Add(new Item() {
+                    name = carrito.ID_PRODUCTO.NOMBRE,
+                    quantity = carrito.CANTIDAD.ToString(),
+                    unit_amount = new UnitAmount() {
+                        currency_code = "USD",
+                        value = carrito.ID_PRODUCTO.PRECIO.ToString("G", new CultureInfo("es-PE"))
+                    }
+                });
                 detalle_venta.Rows.Add(new object[]
                 {
                     carrito.ID_PRODUCTO.ID_PRODUCTO,
@@ -183,23 +193,59 @@ namespace CapaPresentacionTienda.Controllers
                     subtotal
                 });
             }
+            PurchaseUnit purchaseUnit = new PurchaseUnit() {
+                    amount = new Amount() {
+                        currency_code = "USD",
+                        value = total.ToString("G", new CultureInfo("es-PE")),
+                        breakdown = new Breakdown()
+                        {
+                            item_total = new ItemTotal()
+                            {
+                                currency_code = "USD",
+                                value = total.ToString("G", new CultureInfo("es-PE")),
+                            }
+                        }
+                },
+                description = "Compra de articulo de mi tienda",
+                items = listaItem
+            };
+
+            Checkout_Order checkout_Order = new Checkout_Order()
+            {
+                intent = "CAPTURE",
+                purchase_units = new List<PurchaseUnit>() { purchaseUnit },
+                application_context = new ApplicationContext()
+                {
+                    brand_name = "MiTienda.com",
+                    landing_page = "NO_PREFERENCE",
+                    user_action = "PAY_NOW",
+                    return_url = "https://localhost:44343/Tienda/PagoEfectuado",
+                    cancel_url = "https://localhost:44343/Tienda/Carrito"
+                }
+            };
             venta.MONTO_TOTAL = total;
             venta.ID_CLIENTE = ((Cliente)Session["Cliente"]).ID_CLIENTE;
             TempData["VENTA"] = venta;
             TempData["DETALLEVENTA"] = detalle_venta;
-            return Json(new { Status = true, Link = "/Tienda/PagoEfectuado?idTransaccion=code0001&status=true" },JsonRequestBehavior.AllowGet);
+            CN_Paypal paypal = new CN_Paypal();
+            Response_Paypal<Response_Checkout> response_paypal = new Response_Paypal<Response_Checkout>();
+            response_paypal = await paypal.CrearSolicitud(checkout_Order);
+            return Json(new { response_paypal },JsonRequestBehavior.AllowGet);
         }
 
         public async Task<ActionResult> PagoEfectuado()
         {
-            string idtransaccion = Request.QueryString["idTransaccion"];
+            string token = Request.QueryString["token"];
+            CN_Paypal paypal = new CN_Paypal();
+            Response_Paypal<Response_Capture> response_paypal = new Response_Paypal<Response_Capture>();
+            response_paypal = await paypal.AprobarPago(token);
             bool status = Convert.ToBoolean(Request.QueryString["status"]);
-            ViewData["Status"] = status;
-            if(status)
+            ViewData["Status"] = response_paypal.Status;
+            if(response_paypal.Status)
             {
                 Venta venta = (Venta)TempData["Venta"];
                 DataTable detalle_venta = (DataTable)TempData["DetalleVenta"];
-                venta.ID_TRANSACCION = idtransaccion;
+                venta.ID_TRANSACCION = response_paypal.Response.purchase_units[0].payments.captures[0].id;
                 string mensaje = string.Empty;
                 bool respuesta = new CN_Venta().Registrar(venta, detalle_venta, out mensaje);
                 ViewData["IdTransaccion"] = venta.ID_TRANSACCION;

@@ -331,10 +331,14 @@
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
                     $.LoadingOverlay("hide")
-                    if (data.Status) {
-                        window.location.href = data.Link;
+                    if (data.response_paypal.Status == true) {
+                        var jsonresult = data.response_paypal.Response;
+                        var links = jsonresult.links;
+                        debugger;
+                        var resultado = links.find(item => item.rel === "approve");
+                        window.location.href = resultado.href
                     } else {
-                        swal("","Intentalo más tarde","warning")
+                        swal("","Intentalo más tarde uwu","warning")
                     }
                 },
                 beforeSend: function (  ) {
