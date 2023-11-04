@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -46,6 +49,7 @@
     <Compile Include="CN_Cliente.cs" />
     <Compile Include="CN_Comuna.cs" />
     <Compile Include="CN_Marca.cs" />
+    <Compile Include="CN_Paypal.cs" />
     <Compile Include="CN_Producto.cs" />
     <Compile Include="CN_Recursos.cs" />
     <Compile Include="CN_Region.cs" />
@@ -64,6 +68,9 @@
       <Project>{604a1b93-462b-4685-b379-bc70f6ff7138}</Project>
       <Name>CapaEntidad</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
