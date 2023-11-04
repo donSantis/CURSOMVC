@@ -12,6 +12,8 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Services.Description;
 using CapaEntidad.Paypal;
+using CapaPresentacionTienda.filter;
+using System.EnterpriseServices;
 
 namespace CapaPresentacionTienda.Controllers
 {
@@ -159,6 +161,8 @@ namespace CapaPresentacionTienda.Controllers
             lista = new CN_Ubicacion().ObtenerComuna(idcomuna);
             return Json(new { lista = lista }, JsonRequestBehavior.AllowGet);
         }
+        [ValidarSession]
+        [Authorize]
         public ActionResult Carrito()
         {
             return View();
@@ -232,7 +236,8 @@ namespace CapaPresentacionTienda.Controllers
             response_paypal = await paypal.CrearSolicitud(checkout_Order);
             return Json(new { response_paypal },JsonRequestBehavior.AllowGet);
         }
-
+        [ValidarSession]
+        [Authorize]
         public async Task<ActionResult> PagoEfectuado()
         {
             string token = Request.QueryString["token"];
@@ -252,6 +257,29 @@ namespace CapaPresentacionTienda.Controllers
 
             }
             return View();
+        }
+        [ValidarSession]
+        [Authorize]
+        public ActionResult MisCompras()
+        {
+            int idcliente = ((Cliente)Session["Cliente"]).ID_CLIENTE;
+            List<DetalleVenta> lista = new List<DetalleVenta>();
+            bool conversion;
+            lista = new CN_Venta().ListarCompras(idcliente).Select(oc => new DetalleVenta()
+            {
+                ID_PRODUCTO = new Producto()
+                {
+                    NOMBRE = oc.ID_PRODUCTO.NOMBRE,
+                    PRECIO = oc.ID_PRODUCTO.PRECIO,
+                    BASE64 = CN_Recursos.ConvertirBase64(Path.Combine(oc.ID_PRODUCTO.RUTA_IMAGEN, oc.ID_PRODUCTO.NOMBRE_IMAGEN), out conversion),
+                    EXTENSION = Path.GetExtension(oc.ID_PRODUCTO.NOMBRE_IMAGEN),
+
+                },
+                CANTIDAD = oc.CANTIDAD,
+                TOTAL = oc.TOTAL,
+                ID_TRANSACCION = oc.ID_TRANSACCION,
+            }).ToList();
+            return View(lista);
         }
 
     }
