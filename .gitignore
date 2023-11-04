@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/CapaPresentacionTienda/Web.config
+/CapaPresentacionTienda/Web.Debug.config
+/CapaPresentacionTienda/Web.Release.config
